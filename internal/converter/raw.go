@@ -160,8 +160,8 @@ func (r *RAWConverter) extractEmbeddedJPEG(source, dest string, quality int) err
 		end := start + endIdx + 2
 		candidate := data[start:end]
 
-		// Only consider embedded images of substantial size (> 2KB)
-		if len(candidate) > 2048 && len(candidate) > len(largestJPEG) {
+		// Only consider embedded images of valid size (> 512 bytes)
+		if len(candidate) > 512 && len(candidate) > len(largestJPEG) {
 			// Verify candidate starts with valid SOI
 			if bytes.HasPrefix(candidate, []byte{0xFF, 0xD8, 0xFF}) {
 				largestJPEG = candidate

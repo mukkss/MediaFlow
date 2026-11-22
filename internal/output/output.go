@@ -82,11 +82,12 @@ func (m *Manager) ResolveTargetPath(sourcePath string, isImage bool, avoidCollis
 	return finalPath
 }
 
-// TempPathFor returns a temporary staging file path for atomic writing.
+// TempPathFor returns a temporary staging file path preserving destination extension.
 func (m *Manager) TempPathFor(finalPath string) string {
 	dir := filepath.Dir(finalPath)
-	base := filepath.Base(finalPath)
-	tempName := fmt.Sprintf(".%s.%d_%d.tmp", base, os.Getpid(), time.Now().UnixNano())
+	ext := filepath.Ext(finalPath)
+	base := strings.TrimSuffix(filepath.Base(finalPath), ext)
+	tempName := fmt.Sprintf(".%s.%d_%d.tmp%s", base, os.Getpid(), time.Now().UnixNano(), ext)
 	return filepath.Join(dir, tempName)
 }
 
@@ -120,8 +121,11 @@ func (m *Manager) Finalize(tempPath, finalPath string) error {
 // CleanStaleTemps removes leftover temporary files from crashed or aborted sessions.
 func (m *Manager) CleanStaleTemps() {
 	_ = filepath.Walk(m.outputDir, func(path string, info os.FileInfo, err error) error {
-		if err == nil && !info.IsDir() && strings.HasSuffix(info.Name(), ".tmp") {
-			_ = os.Remove(path)
+		if err == nil && !info.IsDir() {
+			name := info.Name()
+			if strings.HasSuffix(name, ".tmp") || strings.Contains(name, ".tmp.") {
+				_ = os.Remove(path)
+			}
 		}
 		return nil
 	})

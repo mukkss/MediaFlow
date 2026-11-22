@@ -91,7 +91,7 @@ func (v *VideoConverter) Convert(ctx context.Context, sourcePath, destPath strin
 		args = append(args, "-an") // No audio
 	}
 
-	args = append(args, destPath)
+	args = append(args, "-f", "mp4", destPath)
 
 	cmd := exec.CommandContext(ctx, ffmpegBin, args...)
 
