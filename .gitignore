@@ -17,11 +17,13 @@ Thumbs.db
 .idea/
 .vscode/
 
-# Node / Frontend build (for Phase 3)
+# Node / Frontend build
 node_modules/
 dist/
-build/
 .wails/
+
+# Windows Inno Setup output
+Output/
 
 # Logs
 *.log
