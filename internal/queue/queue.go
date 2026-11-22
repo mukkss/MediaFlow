@@ -59,6 +59,8 @@ type Queue struct {
 	options       *converter.Options
 	videoConv     converter.MediaConverter
 	imageConv     converter.MediaConverter
+	rawConv       converter.MediaConverter
+	heicConv      converter.MediaConverter
 	stats         Stats
 	onJobUpdate   func(job *Job)
 }
@@ -76,6 +78,8 @@ func NewQueue(workers int, outMgr *output.Manager, opts *converter.Options, onJo
 		options:       opts,
 		videoConv:     converter.NewVideoConverter(),
 		imageConv:     converter.NewStandardImageConverter(),
+		rawConv:       converter.NewRAWConverter(),
+		heicConv:      converter.NewHEICConverter(),
 		onJobUpdate:   onJobUpdate,
 	}
 }
@@ -204,6 +208,10 @@ func (q *Queue) processJob(ctx context.Context, job *Job) {
 		err = q.videoConv.Convert(ctx, job.SourcePath, tempDest, job.Info, q.options)
 	case detector.CategoryImage:
 		err = q.imageConv.Convert(ctx, job.SourcePath, tempDest, job.Info, q.options)
+	case detector.CategoryRAW:
+		err = q.rawConv.Convert(ctx, job.SourcePath, tempDest, job.Info, q.options)
+	case detector.CategoryHEIC:
+		err = q.heicConv.Convert(ctx, job.SourcePath, tempDest, job.Info, q.options)
 	default:
 		err = fmt.Errorf("no converter registered for category %s", job.Info.Category)
 	}
